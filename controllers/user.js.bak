@@ -1,6 +1,5 @@
 const { ObjectId } = require("mongodb");
 const User = require("../models/User");
-const { use } = require("../routes/user");
 
 const getAllUser = async (req, res) => {
   try {
@@ -179,21 +178,20 @@ const addToWishlist = async (req, res) => {
 
 const addAdmin = async (req, res) => {
   try {
-    const { email: email } = req.body;
-    const user = await User.find({ email: email });
+    const { id: userID } = req.params;
+    const user = await User.findById({ _id: userID });
 
     if (!user) {
-      return res.status(404).json({ msg: `No user with email: ${email}` });
+      return res.status(404).json({ msg: `No task with id: ${userID}` });
     }
 
-    const updatedUser = await User.findOneAndUpdate({ email: email }, {
+    const updatedUser = await User.findOneAndUpdate({ _id: userID }, {
       $set: {
         role: 'admin'
       }
     }, {
       new: true,
     });
-
 
     return res.status(200).json(updatedUser);
   } catch (error) {
@@ -203,15 +201,14 @@ const addAdmin = async (req, res) => {
 
 const removeAdmin = async (req, res) => {
   try {
-    const { email: email } = req.body;
-    const user = await User.find({ email: email });
-    console.log(req.body)
+    const { id: userID } = req.params;
+    const user = await User.findById({ _id: userID });
 
     if (!user) {
-      return res.status(404).json({ msg: `No user with email: ${email}` });
+      return res.status(404).json({ msg: `No task with id: ${userID}` });
     }
 
-    const updatedUser = await User.findOneAndUpdate({ email: email }, {
+    const updatedUser = await User.findOneAndUpdate({ _id: userID }, {
       $set: {
         role: 'user'
       }
@@ -220,19 +217,6 @@ const removeAdmin = async (req, res) => {
     });
 
     return res.status(200).json(updatedUser);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getAllAdmin = async (req, res) => {
-  try {
-    const user = await User.find({ role: 'admin' });
-
-    if (!user) {
-      return res.status(404).json({ msg: `No user with admin role` });
-    }
-    return res.status(200).json(user);
   } catch (error) {
     console.log(error);
   }
@@ -247,8 +231,4 @@ module.exports = {
   getWishlist,
   removeFromWishlist,
   addToWishlist,
-  addAdmin,
-  removeAdmin,
-  getAllAdmin
 };
-
